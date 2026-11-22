@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Auroras en vivo · Tromsø</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: una columna para el móvil; arriba el veredicto, debajo cada dato traducido, luego gráficos y tabla de sitios */
+:root{--bg:#f2f5f8;--card:#ffffff;--ink:#13263a;--mut:#536a80;--acc:#0f7a6b;--acc-ink:#ffffff;--line:#d6e0e9;
+--good:#1a7f37;--good-bg:#e7f5ec;--warn:#946300;--warn-bg:#fdf3d7;--bad:#b42318;--bad-bg:#fdecea;
+--f-disp:"Space Grotesk",system-ui,sans-serif;--f-body:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color-scheme:light}
+@media (prefers-color-scheme: dark){:root{--bg:#0e1a2b;--card:#15263d;--ink:#e6eef5;--mut:#9fb3c8;--acc:#7fd4c1;--acc-ink:#062a24;--line:#243b58;
+--good:#5cc97a;--good-bg:#11301c;--warn:#e3b341;--warn-bg:#33290c;--bad:#ff8a80;--bad-bg:#3b1715;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-body)}
+.wrap{max-width:760px;margin:0 auto;padding-block:max(14px,env(safe-area-inset-top,0px)) max(40px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:12px}
+h1,h2{font-family:var(--f-disp);margin:0;text-wrap:balance}
+h1{font-size:1.5rem;line-height:1.15}h2{font-size:1.02rem;margin-bottom:6px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.sub,.note{color:var(--mut);font-size:.85rem;margin:2px 0 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;min-width:0}
+.btn{font:inherit;font-size:.9rem;border:1px solid var(--acc);color:var(--acc);background:transparent;border-radius:999px;padding:5px 14px;cursor:pointer}
+.btn:focus-visible,select:focus-visible,a:focus-visible,tr[tabindex]:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+a{color:var(--acc)}
+.spot{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--mut);margin-bottom:8px;flex-wrap:wrap}
+select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 8px}
+.verdict{background:var(--card)}
+.verdict[data-s="good"]{background:var(--good-bg);border-color:var(--good)}
+.verdict[data-s="warn"]{background:var(--warn-bg);border-color:var(--warn)}
+.verdict[data-s="bad"]{background:var(--bad-bg);border-color:var(--bad)}
+.vt{font-family:var(--f-disp);font-size:1.6rem;font-weight:700;display:flex;gap:10px;align-items:center;line-height:1.15}
+.g{display:inline-grid;place-items:center;flex:none;width:2rem;height:2rem;border-radius:50%;font-size:1.1rem;background:var(--mut);color:var(--bg)}
+.verdict[data-s="good"] .g{background:var(--good)}.verdict[data-s="warn"] .g{background:var(--warn)}.verdict[data-s="bad"] .g{background:var(--bad)}
+.verdict p{margin:8px 0 0}
+.wline{font-weight:600}
+.wline[data-s="good"]{color:var(--good)}.wline[data-s="warn"]{color:var(--warn)}.wline[data-s="bad"]{color:var(--bad)}
+.explain{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.explain li{display:grid;grid-template-columns:8.2rem minmax(0,1fr);gap:2px 10px;align-items:baseline;font-size:.93rem}
+.lab{font-weight:600;font-variant-numeric:tabular-nums}
+.lab small{display:block;font-weight:400;color:var(--mut);font-size:.75rem}
+.chip{display:inline-block;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;border-radius:999px;padding:1px 7px;border:1px solid currentColor;margin-right:6px;color:var(--mut)}
+.chip[data-s="good"]{color:var(--good)}.chip[data-s="warn"]{color:var(--warn)}.chip[data-s="bad"]{color:var(--bad)}
+.chart{position:relative;width:100%;height:150px}
+.chart svg{display:block;width:100%;height:100%}
+.tip{position:absolute;top:0;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.75rem;padding:2px 6px;border-radius:6px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.kprow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.kpb{border:1px solid var(--line);border-radius:10px;padding:6px 8px;text-align:center}
+.kpb b{display:block;font-family:var(--f-disp);font-size:1.5rem;font-variant-numeric:tabular-nums}
+.kpb span{font-size:.78rem;color:var(--mut)}
+.kpb[data-s="good"]{border-color:var(--good)}.kpb[data-s="good"] b{color:var(--good)}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{color:var(--mut);font-weight:600;font-size:.8rem}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+tr[tabindex]{cursor:pointer}
+tr.sel td{background:var(--bg);font-weight:600}
+.bar{display:inline-block;height:8px;border-radius:4px;background:var(--mut);vertical-align:middle;margin-right:6px}
+.moonrow{display:flex;gap:14px;align-items:center}
+.moonrow svg{flex:none}
+.src{list-style:none;padding:0;margin:0;display:grid;gap:4px;font-size:.88rem}
+.src .err{color:var(--bad)}
+@media (prefers-reduced-motion: no-preference){.card{transition:background-color .3s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+<div><h1>Auroras en vivo · Tromsø</h1><p class="sub" id="upd">Cargando datos…</p></div>
+<button type="button" class="btn" id="refresh">Actualizar</button>
+</header>
+
+<section class="card verdict" id="verdict" data-s="none" aria-live="polite">
+<label class="spot" for="spot">Sitio donde están o adonde van <select id="spot"></select></label>
+<div class="vt"><span class="g" id="v-g" aria-hidden="true">?</span><span id="v-title">Cargando…</span></div>
+<p id="v-text">Leyendo NOAA y el pronóstico de nubes.</p>
+<p class="wline" id="v-wind" hidden></p>
+</section>
+
+<section class="card">
+<h2>Qué dice cada dato</h2>
+<ul class="explain" id="explain"></ul>
+</section>
+
+<section class="card">
+<h2>Bz en las últimas 2 horas</h2>
+<p class="note">Bajo la línea de −5, la puerta está abierta. El satélite mide a 1,5 millones de km: lo que ves aquí llega a la Tierra en 30 a 60 minutos.</p>
+<div class="chart" id="bzchart"><span class="tip" id="tip" hidden></span></div>
+</section>
+
+<section class="card">
+<h2>Kp esta noche, cada 3 horas</h2>
+<div class="kprow" id="kprow"></div>
+<p class="note">Hora de Noruega. En Tromsø, con Kp 2 ya se ve algo y desde 3 hay buena aurora.</p>
+</section>
+
+<section class="card">
+<h2>Nubes bajas esta noche, por sitio</h2>
+<div class="tw"><table><thead><tr><th>Sitio</th><th>Opción</th><th class="n">Nubes bajas</th><th class="n">Ráfagas</th><th></th></tr></thead><tbody id="spots"></tbody></table></div>
+<p class="note" id="spotnote">Promedio de las horas de aurora que quedan esta noche. Ráfagas: máximo entre las 10 y las 14 h, cuando se conduce. Tocar una fila elige ese sitio.</p>
+</section>
+
+<section class="card">
+<h2>Luna</h2>
+<div class="moonrow">
+<svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20" fill="var(--line)"/><path id="m-lit" d="" fill="var(--ink)"/></svg>
+<div><div id="m-main"></div><div class="note" id="m-adv"></div></div>
+</div>
+</section>
+
+<section class="card">
+<h2>Fuentes</h2>
+<ul class="src" id="src"></ul>
+<p class="note">Se actualiza sola cada 5 minutos mientras la página está abierta. <a href="https://claude.ai/artifact/TrYmzKMzEokzDsZLgvJ7Vy" target="_blank" rel="noopener">Volver a la guía del viaje ↗</a></p>
+</section>
+</div>
+
+<script>
+(function(){
+"use strict";
+var TZ="Europe/Oslo",LAT=69.65,LON=18.96;
+var SPOTS=[
+ {id:"centro",n:"Tromsø",lat:69.65136,lon:18.95860,o:"todas"},
+ {id:"jaegervatnet",n:"Jægervatnet",lat:69.71423,lon:19.90332,o:"A"},
+ {id:"furuflaten",n:"Furuflaten",lat:69.44130,lon:20.15401,o:"A"},
+ {id:"hatteng",n:"Hatteng",lat:69.27074,lon:19.95986,o:"A · B"},
+ {id:"signaldalen",n:"Signaldalen",lat:69.18484,lon:19.99124,o:"B"},
+ {id:"laksvatn",n:"Laksvatnet",lat:69.37622,lon:19.36293,o:"A · B"},
+ {id:"kvaloyvagen",n:"Kvaløyvågen",lat:69.85192,lon:18.82041,o:"C"},
+ {id:"ersfjordbotn",n:"Ersfjordbotn",lat:69.69441,lon:18.62083,o:"C · D"},
+ {id:"grotfjord",n:"Grøtfjord",lat:69.77701,lon:18.53977,o:"C · D"},
+ {id:"sommaroy",n:"Sommarøy",lat:69.63357,lon:18.00740,o:"D"},
+ {id:"hakoybotn",n:"Håkøybotn",lat:69.63535,lon:18.73213,o:"D"},
+ {id:"tisnes",n:"Tisnes",lat:69.60522,lon:18.83295,o:"C"}
+];
+var URL_MAG="https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json",
+    URL_WIND="https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json",
+    URL_KP="https://services.swpc.noaa.gov/products/noaa-planetary-k-index-forecast.json",
+    URL_OV="https://services.swpc.noaa.gov/json/ovation_aurora_latest.json",
+    URL_OM="https://api.open-meteo.com/v1/forecast?latitude="+SPOTS.map(function(s){return s.lat}).join(",")+"&longitude="+SPOTS.map(function(s){return s.lon}).join(",")+"&hourly=cloud_cover_low,wind_gusts_10m&wind_speed_unit=ms&timezone=Europe%2FOslo&forecast_days=3";
+
+/* ---------- Luna (cálculo propio, sin internet) ---------- */
+var RD=Math.PI/180;function rad(x){return x*RD}function deg(x){return x/RD}function norm(a){return((a%360)+360)%360}
+function moonState(date){
+  var d=(date.getTime()-Date.UTC(1999,11,31))/864e5;
+  var N=125.1228-0.0529538083*d,i=5.1454,w=318.0634+0.1643573223*d,a=60.2666,e=0.0549,M=115.3654+13.0649929509*d;
+  var Ms=356.0470+0.9856002585*d,ws=282.9404+4.70935e-5*d;
+  var E=M+deg(e*Math.sin(rad(M))*(1+e*Math.cos(rad(M))));
+  var xv=a*(Math.cos(rad(E))-e),yv=a*Math.sqrt(1-e*e)*Math.sin(rad(E));
+  var v=deg(Math.atan2(yv,xv)),r=Math.hypot(xv,yv);
+  var cN=Math.cos(rad(N)),sN=Math.sin(rad(N)),cvw=Math.cos(rad(v+w)),svw=Math.sin(rad(v+w)),ci=Math.cos(rad(i));
+  var xh=r*(cN*cvw-sN*svw*ci),yh=r*(sN*cvw+cN*svw*ci),zh=r*svw*Math.sin(rad(i));
+  var lon=deg(Math.atan2(yh,xh)),lat=deg(Math.atan2(zh,Math.hypot(xh,yh)));
+  var Lm=N+w+M,Ls=Ms+ws,D=Lm-Ls,F=Lm-N;
+  lon+=-1.274*Math.sin(rad(M-2*D))+0.658*Math.sin(rad(2*D))-0.186*Math.sin(rad(Ms))-0.059*Math.sin(rad(2*M-2*D))-0.057*Math.sin(rad(M-2*D+Ms))+0.053*Math.sin(rad(M+2*D));
+  lat+=-0.173*Math.sin(rad(F-2*D))-0.055*Math.sin(rad(M-F-2*D))-0.046*Math.sin(rad(M+F-2*D));
+  var ecl=23.4393-3.563e-7*d;
+  var x=Math.cos(rad(lon))*Math.cos(rad(lat)),y=Math.sin(rad(lon))*Math.cos(rad(lat)),z=Math.sin(rad(lat));
+  var ye=y*Math.cos(rad(ecl))-z*Math.sin(rad(ecl)),ze=y*Math.sin(rad(ecl))+z*Math.cos(rad(ecl));
+  var ra=norm(deg(Math.atan2(ye,x))),dec=deg(Math.atan2(ze,Math.hypot(x,ye)));
+  var sra=norm(deg(Math.atan2(Math.sin(rad(Ls))*Math.cos(rad(ecl)),Math.cos(rad(Ls))))),sdec=deg(Math.asin(Math.sin(rad(Ls))*Math.sin(rad(ecl))));
+  var ce=Math.sin(rad(dec))*Math.sin(rad(sdec))+Math.cos(rad(dec))*Math.cos(rad(sdec))*Math.cos(rad(ra-sra));
+  var ut=date.getUTCHours()+date.getUTCMinutes()/60+date.getUTCSeconds()/3600;
+  var ha=rad(norm(Ls+180+ut*15)+LON-ra);
+  var alt=deg(Math.asin(Math.sin(rad(LAT))*Math.sin(rad(dec))+Math.cos(rad(LAT))*Math.cos(rad(dec))*Math.cos(ha)))-0.95;
+  var az=norm(deg(Math.atan2(Math.sin(ha),Math.cos(ha)*Math.sin(rad(LAT))-Math.tan(rad(dec))*Math.cos(rad(LAT))))+180);
+  return {illum:(1-ce)/2,alt:alt,az:az,waxing:norm(lon-Ls)<180};
+}
+var DIRS=["norte","noreste","este","sureste","sur","suroeste","oeste","noroeste"];
+function dirName(az){return DIRS[Math.floor(norm(az+22.5)/45)%8]}
+function lookTip(az){var a=norm(az);
+  if(a>=112.5&&a<247.5)return"Mirar hacia el norte, con la luna a la espalda.";
+  if(a>=67.5&&a<292.5)return"Mirar hacia el norte: la luna queda de costado.";
+  return"La luna está del lado de la aurora: buscar una montaña que la tape o mirar hacia arriba."}
+function height(alt){if(alt<0)return"bajo el horizonte";if(alt<15)return"muy baja";if(alt<25)return"baja";if(alt<38)return"a media altura";return"alta"}
+function litPath(k,wax){var r=20,c=23,t=c+","+(c-r),b=c+","+(c+r),rx=(Math.abs(1-2*k)*r).toFixed(2),g=k>0.5;
+  return wax?"M"+t+"A"+r+","+r+" 0 0 1 "+b+"A"+rx+","+r+" 0 0 "+(g?1:0)+" "+t+"Z":"M"+t+"A"+r+","+r+" 0 0 0 "+b+"A"+rx+","+r+" 0 0 "+(g?0:1)+" "+t+"Z"}
+
+/* ---------- Traducción ---------- */
+function fmt(n){return String(Math.round(n*10)/10).replace(".",",").replace("-","−")}
+function judge(v){
+  var kp=v.kp,bz=v.bz,sp=v.sp,cl=v.cl,gu=v.gu,items=[],s;
+  if(kp!=null){
+    if(kp<2)s=["warn","flojo","Muy tranquilo: como mucho una franja débil al norte."];
+    else if(kp<3)s=["ok","justo","Suficiente en Tromsø para ver algo si está despejado."];
+    else if(kp<4)s=["good","bien","Buena actividad: con luna llena se ve bien."];
+    else if(kp<5)s=["good","muy bien","Aurora activa que puede cruzar todo el cielo."];
+    else s=["good","tormenta","Aurora fuerte y con colores, incluso sobre la ciudad."];
+    items.push(["Kp "+fmt(kp),"máximo previsto esta noche"].concat(s));
+  }
+  if(bz!=null){
+    if(bz>=0)s=["warn","en contra","Positivo: el campo magnético del sol no se conecta con el de la Tierra. La aurora se apaga o queda débil."];
+    else if(bz>-5)s=["ok","ayuda poco","Algo negativo: ayuda un poco."];
+    else if(bz>-10)s=["good","a favor","Muy negativo: la puerta está abierta. Si sigue así 15 minutos, sale aurora."];
+    else s=["good","muy a favor","Fuertemente negativo: aurora intensa probable en minutos."];
+    items.push(["Bz "+fmt(bz)+" nT","promedio de 15 min"].concat(s));
+  }
+  if(sp!=null){
+    if(sp<400)s=["warn","lento","Viento solar lento: aporta poca energía."];
+    else if(sp<500)s=["ok","normal","Velocidad normal: ayuda."];
+    else if(sp<700)s=["good","rápido","Más energía: auroras más vivas."];
+    else s=["good","muy rápido","Posible tormenta."];
+    items.push([Math.round(sp)+" km/s","viento solar ahora"].concat(s));
+  }
+  if(cl!=null){
+    if(cl<30)s=["good","despejado","Si hay aurora, se ve."];
+    else if(cl<70)s=["warn","parcial","Mirar por los huecos: las nubes bajas se mueven."];
+    else s=["bad","tapado","No se ve aunque haya aurora. Las nubes altas y finas no importan; las bajas sí."];
+    items.push(["Nubes "+fmt(cl)+"%",v.clLabel||"nubes bajas"].concat(s));
+  }
+  var wind=null;
+  if(gu!=null){
+    if(gu<10){s=["good","tranquilo","Se puede conducir con normalidad, de día."];wind=["good","Viento tranquilo para conducir."]}
+    else if(gu<15){s=["warn","cuidado","Conducir solo si hace falta, despacio y evitando puentes y tramos expuestos."];wind=["warn","Ráfagas de "+fmt(gu)+" m/s: conducir solo si hace falta."]}
+    else{s=["bad","no conducir","La autocaravana no se mueve."];wind=["bad","Ráfagas de "+fmt(gu)+" m/s: la autocaravana no se mueve."]}
+    items.push(["Ráfagas "+fmt(gu)+" m/s",v.guLabel||"para conducir"].concat(s));
+  }
+  var haveSun=kp!=null||bz!=null||sp!=null;
+  var storm=(bz!=null&&bz<=-10)||(bz!=null&&bz<=-5&&(sp==null||sp>=450))||(kp!=null&&kp>=5);
+  var good=storm||(kp!=null&&kp>=3)||(bz!=null&&bz<=-3);
+  var covered=cl!=null&&cl>=70,partial=cl!=null&&cl>=30&&cl<70;
+  var holes=partial?" Hay nubes en parte: mirar por los huecos.":"",noCl=cl==null?" Sin dato de nubes para este sitio.":"";
+  var out;
+  if(!haveSun&&cl==null)out={state:"none",title:"Sin datos",text:"No se pudo leer ninguna fuente. Revisar la conexión y tocar Actualizar."};
+  else if(covered)out={state:"bad",title:"Cielo tapado",text:(storm?"Hay actividad fuerte, pero las nubes bajas la tapan. Mirar el cielo cada tanto por si se abre un hueco, sin conducir de noche para buscarla.":"Las nubes bajas tapan el cielo. Descansar y mirar de vez en cuando.")+" Mañana a las 11:00, elegir el sitio con menos nubes en la tabla."};
+  else if(!haveSun)out={state:"none",title:"Falta la actividad del sol",text:"No se pudo leer NOAA. El cielo está "+(partial?"en parte despejado":"despejado")+"."};
+  else if(storm)out={state:"good",title:"Salir ya",text:"Hay aurora ahora o en los próximos 30 a 60 minutos. Abrigarse, apagar luces y mirar hacia el norte."+holes+noCl};
+  else if(good)out={state:"good",title:"Buena noche: estar atentos",text:"Estar afuera o mirar cada 15 minutos entre las 21:00 y las 24:00, hacia el norte. Si Bz baja de −5, salir enseguida."+holes+noCl};
+  else out={state:"warn",title:"Noche floja",text:"Puede haber una franja débil al norte, que con esta luna cuesta ver. Mirar de vez en cuando y no trasnochar. Si Bz se vuelve muy negativo, cambia todo."+holes+noCl};
+  out.items=items;out.wind=wind;return out;
+}
+
+/* ---------- Tiempo ---------- */
+var partsFmt=new Intl.DateTimeFormat("en-CA",{timeZone:TZ,year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",hourCycle:"h23"});
+function oslo(date){var p={};partsFmt.formatToParts(date).forEach(function(x){p[x.type]=x.value});return{date:p.year+"-"+p.month+"-"+p.day,hour:+p.hour}}
+function addDay(iso,n){var t=new Date(iso+"T12:00:00Z");t.setUTCDate(t.getUTCDate()+n);return t.toISOString().slice(0,10)}
+function key(d,h){return d+"T"+(h<10?"0":"")+h+":00"}
+var hm=new Intl.DateTimeFormat("es",{hour:"2-digit",minute:"2-digit",timeZone:TZ});
+function nightWindow(now){
+  var o=oslo(now),h=o.hour,keys=[],inNight=h>=16||h<3;
+  if(h<3){for(var a=h;a<=2;a++)keys.push(key(o.date,a))}
+  else{for(var b=Math.max(h,16);b<=23;b++)keys.push(key(o.date,b));var n=addDay(o.date,1);for(var c=0;c<=2;c++)keys.push(key(n,c))}
+  return{keys:keys,inNight:inNight,nowKey:key(o.date,h)};
+}
+function driveWindow(now){var o=oslo(now),d=o.hour<14?o.date:addDay(o.date,1),k=[];for(var h=10;h<=14;h++)k.push(key(d,h));return{keys:k,today:o.hour<14}}
+
+/* ---------- Datos ---------- */
+var S={mag:null,wind:null,kp:null,ov:null,om:null,err:{},at:{}};
+function getJSON(u){return fetch(u,{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})}
+function active(rows){return rows.filter(function(r){return r.active}).map(function(r){r.t=Date.parse(r.time_tag+"Z");return r}).sort(function(a,b){return a.t-b.t})}
+function avgSince(rows,field,mins){var last=rows.length?rows[rows.length-1].t:0,v=rows.filter(function(r){return r.t>last-mins*6e4&&r[field]!=null});if(!v.length)return null;return v.reduce(function(s,r){return s+r[field]},0)/v.length}
+function kpTonight(rows,now){
+  var start=new Date(now);if(start.getUTCHours()<3)start.setUTCDate(start.getUTCDate()-1);start.setUTCHours(15,0,0,0);
+  var t0=start.getTime(),t1=t0+12*36e5;
+  return rows.map(function(r){return{t:Date.parse(r.time_tag+"Z"),kp:+r.kp,obs:r.observed}}).filter(function(r){return r.t>=t0&&r.t<t1});
+}
+function ovAt(d){var c=d.coordinates,best=null;for(var i=0;i<c.length;i++){if(c[i][0]===19&&c[i][1]===70){best=c[i][2];break}}return best}
+function spotWeather(idx,now){
+  var om=S.om;if(!om)return null;var loc=Array.isArray(om)?om[idx]:om;if(!loc||!loc.hourly)return null;
+  var H=loc.hourly,pos={};H.time.forEach(function(t,i){pos[t]=i});
+  var nw=nightWindow(now),vals=nw.keys.map(function(k){return H.cloud_cover_low[pos[k]]}).filter(function(x){return x!=null});
+  var cur=pos[nw.nowKey]!=null?H.cloud_cover_low[pos[nw.nowKey]]:null;
+  var dw=driveWindow(now),gs=dw.keys.map(function(k){return H.wind_gusts_10m[pos[k]]}).filter(function(x){return x!=null});
+  return{avg:vals.length?vals.reduce(function(a,b){return a+b},0)/vals.length:null,min:vals.length?Math.min.apply(null,vals):null,
+         now:cur,inNight:nw.inNight,gust:gs.length?Math.max.apply(null,gs):null,gustToday:dw.today};
+}
+
+/* ---------- Pintar ---------- */
+var $=function(id){return document.getElementById(id)};
+var selected="centro";try{selected=localStorage.getItem("aurora-sitio")||"centro"}catch(e){}
+function spotIdx(){for(var i=0;i<SPOTS.length;i++)if(SPOTS[i].id===selected)return i;return 0}
+function render(){
+  var now=new Date(),i=spotIdx(),sp=SPOTS[i],w=spotWeather(i,now);
+  var mag=S.mag,wind=S.wind,kpRows=S.kp?kpTonight(S.kp,now):[];
+  var v={kp:kpRows.length?Math.max.apply(null,kpRows.map(function(r){return r.kp})):null,
+         bz:mag?avgSince(mag,"bz_gsm",15):null,sp:wind?avgSince(wind,"proton_speed",10):null,
+         cl:null,gu:null};
+  if(w){v.cl=w.inNight&&w.now!=null?w.now:w.avg;v.clLabel=(w.inNight?"ahora en ":"esta noche en ")+sp.n;v.gu=w.gust;v.guLabel=(w.gustToday?"hoy":"mañana")+" de 10 a 14 h"}
+  var r=judge(v),G={good:"✓",warn:"!",bad:"✕",none:"?"};
+  $("verdict").setAttribute("data-s",r.state);$("v-g").textContent=G[r.state];$("v-title").textContent=r.title;$("v-text").textContent=r.text;
+  if(r.wind){$("v-wind").hidden=false;$("v-wind").setAttribute("data-s",r.wind[0]);$("v-wind").textContent=r.wind[1]}else $("v-wind").hidden=true;
+  var ul=$("explain");ul.innerHTML="";
+  r.items.forEach(function(it){addItem(ul,it[0],it[1],it[2],it[3],it[4])});
+  if(S.ov!=null){var p=S.ov,st=p>=30?["good","alta"]:p>=10?["ok","media"]:["warn","baja"];
+    addItem(ul,p+"%","modelo NOAA, 30 a 90 min",st[0],st[1],"Probabilidad de ver aurora sobre Tromsø si el cielo está despejado.")}
+  var m=moonState(now),pct=Math.round(m.illum*100),dk=m.alt<0||m.illum<0.25;
+  addItem(ul,"Luna "+pct+"%",m.alt<0?"bajo el horizonte":"al "+dirName(m.az),dk?"good":"ok",dk?"no molesta":"ilumina",
+    m.alt<0?"Noche más oscura: mejor para auroras débiles.":"Las auroras débiles se ven menos y las fuertes igual. "+lookTip(m.az));
+  $("m-main").textContent=pct+"% iluminada, "+(m.waxing?"creciendo":"menguando")+". "+(m.alt<0?"Ahora está bajo el horizonte.":"Está al "+dirName(m.az)+", "+height(m.alt)+" ("+Math.round(m.alt)+"°).");
+  $("m-adv").textContent=m.alt<0?"No está en el cielo: noche más oscura.":lookTip(m.az);
+  $("m-lit").setAttribute("d",litPath(m.illum,m.waxing));
+  renderKp(kpRows);renderSpots(now);renderChart();renderSources(now);
+}
+function addItem(ul,lab,sub,st,chip,txt){
+  var li=document.createElement("li"),a=document.createElement("span"),b=document.createElement("span"),c=document.createElement("span"),s=document.createElement("small");
+  a.className="lab";a.textContent=lab;s.textContent=sub;a.appendChild(s);c.className="chip";c.setAttribute("data-s",st);c.textContent=chip;
+  b.appendChild(c);b.appendChild(document.createTextNode(txt));li.appendChild(a);li.appendChild(b);ul.appendChild(li);
+}
+function renderKp(rows){
+  var box=$("kprow");box.innerHTML="";
+  if(!rows.length){box.textContent=S.err.kp?"No se pudo leer el Kp.":"Sin datos.";return}
+  rows.forEach(function(r){
+    var d=document.createElement("div"),b=document.createElement("b"),s=document.createElement("span");
+    d.className="kpb";if(r.kp>=3)d.setAttribute("data-s","good");
+    b.textContent=fmt(r.kp);
+    s.textContent=hm.format(new Date(r.t)).slice(0,2)+"–"+hm.format(new Date(r.t+3*36e5)).slice(0,2)+" h · "+(r.obs==="observed"?"medido":r.obs==="estimated"?"estimado":"previsto");
+    d.appendChild(b);d.appendChild(s);box.appendChild(d);
+  });
+}
+function renderSpots(now){
+  var tb=$("spots");tb.innerHTML="";
+  var rows=SPOTS.map(function(s,i){return{s:s,w:spotWeather(i,now)}});
+  rows.sort(function(a,b){var x=a.w&&a.w.avg!=null?a.w.avg:999,y=b.w&&b.w.avg!=null?b.w.avg:999;return x-y});
+  rows.forEach(function(r){
+    var tr=document.createElement("tr");tr.tabIndex=0;if(r.s.id===selected)tr.className="sel";
+    var c=r.w&&r.w.avg!=null?Math.round(r.w.avg):null,g=r.w&&r.w.gust!=null?Math.round(r.w.gust):null;
+    var st=c==null?"":c<30?"good":c<70?"warn":"bad",gst=g==null?"":g<10?"good":g<15?"warn":"bad";
+    tr.innerHTML="<td></td><td></td><td class='n'></td><td class='n'></td><td></td>";
+    tr.children[0].textContent=r.s.n;tr.children[1].textContent=r.s.o;
+    tr.children[2].innerHTML=c==null?"—":"<span class='bar' style='width:"+Math.max(2,c*0.5)+"px;background:var(--"+st+")'></span>"+c+"%";
+    tr.children[3].innerHTML=g==null?"—":"<span style='color:var(--"+gst+")'>"+g+" m/s</span>";
+    var a=document.createElement("a");a.href="https://www.windy.com/-Low-clouds-lclouds?lclouds,"+r.s.lat.toFixed(3)+","+r.s.lon.toFixed(3)+",10";a.target="_blank";a.rel="noopener";a.textContent="mapa ↗";
+    a.addEventListener("click",function(e){e.stopPropagation()});tr.children[4].appendChild(a);
+    function pick(){selected=r.s.id;try{localStorage.setItem("aurora-sitio",selected)}catch(e){}$("spot").value=selected;render()}
+    tr.addEventListener("click",pick);tr.addEventListener("keydown",function(e){if(e.key==="Enter"||e.key===" "){e.preventDefault();pick()}});
+    tb.appendChild(tr);
+  });
+  if(S.err.om)$("spotnote").textContent="No se pudo leer el pronóstico de nubes. Usar los enlaces a Windy.";
+}
+function renderChart(){
+  var box=$("bzchart"),old=box.querySelector("svg");if(old)old.remove();
+  var tip=$("tip");tip.hidden=true;
+  if(!S.mag||!S.mag.length){var p=document.createElement("p");p.className="note";p.textContent=S.err.mag?"No se pudo leer el Bz.":"Cargando…";if(!box.querySelector("p"))box.appendChild(p);return}
+  var pp=box.querySelector("p");if(pp)pp.remove();
+  var last=S.mag[S.mag.length-1].t,pts=S.mag.filter(function(r){return r.t>=last-120*6e4&&r.bz_gsm!=null});
+  var W=box.clientWidth||600,H=150,L=30,R=44,T=10,B=22;
+  var lo=Math.min(-10,Math.floor(Math.min.apply(null,pts.map(function(r){return r.bz_gsm}))-1)),hi=Math.max(10,Math.ceil(Math.max.apply(null,pts.map(function(r){return r.bz_gsm}))+1));
+  var t0=last-120*6e4;function X(t){return L+(t-t0)/(120*6e4)*(W-L-R)}function Y(v){return T+(hi-v)/(hi-lo)*(H-T-B)}
+  var ns="http://www.w3.org/2000/svg",svg=document.createElementNS(ns,"svg");svg.setAttribute("viewBox","0 0 "+W+" "+H);svg.setAttribute("role","img");
+  svg.setAttribute("aria-label","Bz de las últimas 2 horas. Último valor "+fmt(pts[pts.length-1].bz_gsm)+" nT");
+  function el(n,a){var e=document.createElementNS(ns,n);for(var k in a)e.setAttribute(k,a[k]);svg.appendChild(e);return e}
+  [hi,0,-5,lo].forEach(function(v){el("line",{x1:L,x2:W-R,y1:Y(v),y2:Y(v),stroke:"var(--line)","stroke-width":v===0?1.5:1,"stroke-dasharray":v===-5?"4 3":"none"});
+    var tx=el("text",{x:L-6,y:Y(v)+4,"text-anchor":"end","font-size":"11",fill:"var(--mut)"});tx.textContent=fmt(v)});
+  for(var m=0;m<=120;m+=30){var tt=el("text",{x:X(t0+m*6e4),y:H-6,"text-anchor":m===0?"start":m===120?"end":"middle","font-size":"11",fill:"var(--mut)"});tt.textContent=hm.format(new Date(t0+m*6e4))}
+  var d="",area="M"+X(pts[0].t)+","+Y(0);
+  pts.forEach(function(r,k){d+=(k?"L":"M")+X(r.t).toFixed(1)+","+Y(r.bz_gsm).toFixed(1);area+="L"+X(r.t).toFixed(1)+","+Y(r.bz_gsm).toFixed(1)});
+  area+="L"+X(pts[pts.length-1].t)+","+Y(0)+"Z";
+  el("path",{d:area,fill:"var(--acc)","fill-opacity":"0.15",stroke:"none"});
+  el("path",{d:d,fill:"none",stroke:"var(--acc)","stroke-width":2,"stroke-linejoin":"round"});
+  var lp=pts[pts.length-1];el("circle",{cx:X(lp.t),cy:Y(lp.bz_gsm),r:4,fill:"var(--acc)",stroke:"var(--card)","stroke-width":2});
+  var lt=el("text",{x:X(lp.t)+8,y:Y(lp.bz_gsm)+4,"font-size":"12","font-weight":"600",fill:"var(--ink)"});lt.textContent=fmt(lp.bz_gsm);
+  var cross=el("line",{x1:0,x2:0,y1:T,y2:H-B,stroke:"var(--mut)","stroke-width":1,visibility:"hidden"});
+  svg.addEventListener("pointermove",function(e){
+    var rc=svg.getBoundingClientRect(),x=(e.clientX-rc.left)*W/rc.width,t=t0+(x-L)/(W-L-R)*120*6e4,best=pts[0];
+    pts.forEach(function(p){if(Math.abs(p.t-t)<Math.abs(best.t-t))best=p});
+    cross.setAttribute("x1",X(best.t));cross.setAttribute("x2",X(best.t));cross.setAttribute("visibility","visible");
+    tip.hidden=false;tip.textContent=hm.format(new Date(best.t))+" · Bz "+fmt(best.bz_gsm)+" nT";
+    var px=X(best.t)*rc.width/W;tip.style.left=Math.min(Math.max(0,px-60),rc.width-140)+"px";
+  });
+  svg.addEventListener("pointerleave",function(){cross.setAttribute("visibility","hidden");tip.hidden=true});
+  box.insertBefore(svg,tip);
+}
+function age(t){if(!t)return"";var m=Math.round((Date.now()-t)/6e4);return m<1?"hace menos de 1 min":"hace "+m+" min"}
+function renderSources(now){
+  var L=[["NOAA · viento solar (Bz y velocidad)","https://www.swpc.noaa.gov/products/real-time-solar-wind","mag",S.mag&&S.mag.length?S.mag[S.mag.length-1].t:null],
+         ["NOAA · Kp previsto","https://www.swpc.noaa.gov/products/3-day-forecast","kp",S.at.kp],
+         ["NOAA · probabilidad de aurora","https://www.swpc.noaa.gov/products/aurora-30-minute-forecast","ov",S.at.ov],
+         ["Open-Meteo · nubes bajas y ráfagas","https://open-meteo.com/","om",S.at.om],
+         ["Vegvesen · carreteras (no automático)","https://www.vegvesen.no/trafikk/",null,null]];
+  var ul=$("src");ul.innerHTML="";
+  L.forEach(function(x){var li=document.createElement("li"),a=document.createElement("a");a.href=x[1];a.target="_blank";a.rel="noopener";a.textContent=x[0]+" ↗";li.appendChild(a);
+    var s=document.createElement("span");if(x[2]&&S.err[x[2]]){s.className="err";s.textContent=" · no se pudo leer"}else if(x[3]){s.className="note";s.textContent=" · dato "+age(x[3])}li.appendChild(s);ul.appendChild(li)});
+  var any=Object.keys(S.err).length;
+  $("upd").textContent="Actualizado a las "+hm.format(now)+" h"+(any?" · alguna fuente no respondió":"");
+}
+
+/* ---------- Carga ---------- */
+var lastOv=0,lastOm=0;
+function load(force){
+  var now=Date.now(),jobs=[];
+  function job(name,url,fn){jobs.push(getJSON(url).then(function(d){fn(d);delete S.err[name];S.at[name]=Date.now()}).catch(function(){S.err[name]=true}))}
+  job("mag",URL_MAG,function(d){S.mag=active(d)});
+  job("wind",URL_WIND,function(d){S.wind=active(d)});
+  job("kp",URL_KP,function(d){S.kp=d});
+  if(force||now-lastOv>10*6e4){lastOv=now;job("ov",URL_OV,function(d){S.ov=ovAt(d)})}
+  if(force||now-lastOm>30*6e4){lastOm=now;job("om",URL_OM,function(d){S.om=d})}
+  return Promise.all(jobs).then(render);
+}
+var sel=$("spot");SPOTS.forEach(function(s){var o=document.createElement("option");o.value=s.id;o.textContent=s.n+(s.o==="todas"?"":" ("+s.o+")");sel.appendChild(o)});
+sel.value=selected;sel.addEventListener("change",function(){selected=sel.value;try{localStorage.setItem("aurora-sitio",selected)}catch(e){}render()});
+$("refresh").addEventListener("click",function(){$("upd").textContent="Actualizando…";load(true)});
+window.addEventListener("resize",function(){renderChart()});
+render();load(true);
+setInterval(function(){if(document.visibilityState==="visible")load(false)},5*6e4);
+document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible")load(false)});
+})();
+</script>
+</body>
+</html>
