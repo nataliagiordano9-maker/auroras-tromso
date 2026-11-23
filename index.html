@@ -103,6 +103,19 @@ tr.sel td{background:var(--bg);font-weight:600}
 </section>
 
 <section class="card">
+<h2>Lo que cuentan los viajeros</h2>
+<ul class="src">
+<li>Lo que manda es el cielo despejado, no el Kp: hubo quien vio auroras con un 10 % de probabilidad.</li>
+<li>Con la costa nublada, los tours van tierra adentro por la E8 hacia Skibotn. Si aquí Skibotn sale despejado y la costa no, ese es el sitio.</li>
+<li>Aparcar solo en sitios marcados, nunca en el arcén. No entrar de noche en Sommarøy ni Hillesøy; en la isla solo se aparca de 6 a 24.</li>
+<li>Kattfjordvatnet, Sommarøy y Kvaløyvågen se llenan de buses de tours: alejarse unos cientos de metros de sus faros.</li>
+<li>Navidad: el 24 el súper cierra a las 13:00 y el 25-26 todo cerrado. El 24 el último ferry de Svensby sale a las 12:10; el 25 no hay ferry.</li>
+<li>Vaciado de casete gratis todo el año: área de Sørbotn, en la E8.</li>
+</ul>
+<p class="note">Los sitios marcados "viajeros" en la tabla salen de blogs y foros; los detalles están en la capa Viajeros del mapa.</p>
+</section>
+
+<section class="card">
 <h2>Luna</h2>
 <div class="moonrow">
 <svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="20" fill="var(--line)"/><path id="m-lit" d="" fill="var(--ink)"/></svg>
@@ -134,7 +147,12 @@ var SPOTS=[
  {id:"tromvik",n:"Tromvik",lat:69.77939,lon:18.39909,o:"E"},
  {id:"sommaroy",n:"Sommarøy",lat:69.63357,lon:18.00740,o:"D · E"},
  {id:"hella",n:"Hella",lat:69.56060,lon:18.72270,o:"C · D"},
- {id:"tisnes",n:"Tisnes",lat:69.60522,lon:18.83295,o:"C · E"}
+ {id:"tisnes",n:"Tisnes",lat:69.60522,lon:18.83295,o:"C · E"},
+ {id:"skibotn",n:"Skibotn (plan B de los tours)",lat:69.39243,lon:20.26647,o:"viajeros"},
+ {id:"ramfjordmoen",n:"Ramfjordmoen (E8)",lat:69.57989,lon:19.22139,o:"viajeros"},
+ {id:"nakkevatnet",n:"Nakkevatnet",lat:69.57622,lon:19.55685,o:"viajeros"},
+ {id:"finnvik",n:"Finnvikdalen",lat:69.75320,lon:18.86390,o:"viajeros"},
+ {id:"sommaroybro",n:"Puente de Sommarøy",lat:69.62294,lon:18.04594,o:"viajeros"}
 ];
 var URL_MAG="https://services.swpc.noaa.gov/json/rtsw/rtsw_mag_1m.json",
     URL_WIND="https://services.swpc.noaa.gov/json/rtsw/rtsw_wind_1m.json",
